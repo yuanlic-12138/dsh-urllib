@@ -1,0 +1,10 @@
+# 个人数据 —— 不进版本库，这样把仓库分享出去也不会带上我的网址收藏
+library.json
+library.json.bak
+
+# 运行时产物
+server.log
+
+# 便携版 Node 运行时（二进制，不是源码）
+node.exe
+node/

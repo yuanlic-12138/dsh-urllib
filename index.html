@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="zh-CN" data-ul-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>网址库</title>
+  <style>
+    /* 自包含样式：不依赖任何外部样式表，离线可用。
+       背景纯白，卡片是「淡淡的玻璃感」：同色水洗 + 同色细描边 + 柔和投影 + 内侧高光。
+       颜色主题定义在 [data-c="..."] 上，所以卡片和对话框里的色块共用同一套变量。 */
+
+    :root[data-ul-theme="light"] {
+      color-scheme: light;
+      --ul-bg: #ffffff;
+      --ul-fg: #1f2328;
+      --ul-fg-2: #59636e;
+      --ul-fg-3: #818b98;
+      --ul-border: #d1d9e0;
+      --ul-border-2: #b7c0c9;
+      --ul-fill: #f6f8fa;
+      --ul-fill-2: #eaeef2;
+      --ul-field: #ffffff;
+      --ul-accent: #0969da;
+      --ul-ok: #1f883d;
+      --ul-ok-fg: #ffffff;
+      --ul-warn: #bf8700;
+      --ul-warn-fg: #ffffff;
+      --ul-danger: #cf222e;
+      --ul-overlay: rgba(31, 35, 40, .4);
+      --ul-scroll: rgba(31, 35, 40, .2);
+      --ul-toast-bg: #ffffff;
+      --ul-shadow: 0 8px 24px rgba(31, 35, 40, .18);
+      --ul-hairline: #ffffff;
+      --ul-c-default: #9aa4b2;
+      --ul-c-solid: #9aa4b2;
+      --ul-c-on: #ffffff;
+      --ul-c-wash: rgba(31, 35, 40, .035);
+      --ul-c-edge: rgba(31, 35, 40, .13);
+      --ul-c-shadow: rgba(31, 35, 40, .13);
+    }
+    :root[data-ul-theme="dark"] {
+      color-scheme: dark;
+      --ul-bg: #0b0e14;
+      --ul-fg: #e6e8eb;
+      --ul-fg-2: #9aa4b2;
+      --ul-fg-3: #6b7280;
+      --ul-border: #262b36;
+      --ul-border-2: #3a4150;
+      --ul-fill: rgba(255, 255, 255, .03);
+      --ul-fill-2: rgba(255, 255, 255, .07);
+      --ul-field: rgba(255, 255, 255, .03);
+      --ul-accent: #4f8ef7;
+      --ul-ok: #3fb950;
+      --ul-ok-fg: #0b0e14;
+      --ul-warn: #d29922;
+      --ul-warn-fg: #0b0e14;
+      --ul-danger: #f85149;
+      --ul-overlay: rgba(0, 0, 0, .5);
+      --ul-scroll: rgba(255, 255, 255, .14);
+      --ul-toast-bg: #282c34;
+      --ul-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+      --ul-hairline: rgba(255, 255, 255, .07);
+      --ul-c-default: #9aa4b2;
+      --ul-c-solid: #9aa4b2;
+      --ul-c-on: #0b0e14;
+      --ul-c-wash: rgba(154, 164, 178, .07);
+      --ul-c-edge: rgba(154, 164, 178, .22);
+      --ul-c-shadow: rgba(0, 0, 0, .45);
+    }
+
+    /* 四色：任何带 data-c 的元素都能用（卡片、色块按钮） */
+    :root[data-ul-theme="light"] [data-c="red"] {
+      --ul-c: #c92a2a; --ul-c-solid: #ff3b30; --ul-c-on: #ffffff;
+      --ul-c-wash: rgba(255, 59, 48, .15); --ul-c-edge: rgba(255, 59, 48, .34); --ul-c-shadow: rgba(255, 59, 48, .22);
+    }
+    :root[data-ul-theme="light"] [data-c="yellow"] {
+      --ul-c: #8a6100; --ul-c-solid: #ffc400; --ul-c-on: #1f2328;
+      --ul-c-wash: rgba(255, 196, 0, .22); --ul-c-edge: rgba(224, 165, 0, .40); --ul-c-shadow: rgba(224, 165, 0, .26);
+    }
+    :root[data-ul-theme="light"] [data-c="blue"] {
+      --ul-c: #0058c8; --ul-c-solid: #007aff; --ul-c-on: #ffffff;
+      --ul-c-wash: rgba(0, 122, 255, .14); --ul-c-edge: rgba(0, 122, 255, .32); --ul-c-shadow: rgba(0, 122, 255, .22);
+    }
+    :root[data-ul-theme="light"] [data-c="purple"] {
+      --ul-c: #8e34b8; --ul-c-solid: #af52de; --ul-c-on: #ffffff;
+      --ul-c-wash: rgba(175, 82, 222, .15); --ul-c-edge: rgba(175, 82, 222, .34); --ul-c-shadow: rgba(175, 82, 222, .22);
+    }
+    :root[data-ul-theme="dark"] [data-c="red"] {
+      --ul-c: #ff6b61; --ul-c-solid: #ff453a; --ul-c-on: #ffffff;
+      --ul-c-wash: rgba(255, 69, 58, .14); --ul-c-edge: rgba(255, 69, 58, .36); --ul-c-shadow: rgba(255, 69, 58, .26);
+    }
+    :root[data-ul-theme="dark"] [data-c="yellow"] {
+      --ul-c: #ffd60a; --ul-c-solid: #ffd60a; --ul-c-on: #1a1500;
+      --ul-c-wash: rgba(255, 214, 10, .12); --ul-c-edge: rgba(255, 214, 10, .32); --ul-c-shadow: rgba(255, 214, 10, .20);
+    }
+    :root[data-ul-theme="dark"] [data-c="blue"] {
+      --ul-c: #6fb0ff; --ul-c-solid: #0a84ff; --ul-c-on: #ffffff;
+      --ul-c-wash: rgba(10, 132, 255, .15); --ul-c-edge: rgba(10, 132, 255, .36); --ul-c-shadow: rgba(10, 132, 255, .26);
+    }
+    :root[data-ul-theme="dark"] [data-c="purple"] {
+      --ul-c: #cf8bf5; --ul-c-solid: #bf5af2; --ul-c-on: #ffffff;
+      --ul-c-wash: rgba(191, 90, 242, .15); --ul-c-edge: rgba(191, 90, 242, .36); --ul-c-shadow: rgba(191, 90, 242, .26);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--ul-bg);
+      color: var(--ul-fg);
+      font-family: -apple-system, "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif;
+      font-size: 13px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: var(--ul-scroll); border-radius: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
+    .dshell { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; min-height: 100%; }
+    .dshell-title { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: .2px; }
+    .dshell-sub { margin: 0; font-size: 12px; color: var(--ul-fg-2); }
+    .dshell-muted { color: var(--ul-fg-3); font-size: 11.5px; }
+    .dshell-btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px;
+      border: 1px solid transparent; background: var(--ul-ok); color: var(--ul-ok-fg);
+      font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    }
+    .dshell-btn:hover { filter: brightness(1.08); }
+    .dshell-btnGhost { background: transparent; border-color: var(--ul-border); color: var(--ul-fg-2); font-weight: 500; }
+    .dshell-btnGhost:hover { color: var(--ul-fg); border-color: var(--ul-border-2); filter: none; }
+    .dshell-input, .dshell-textarea {
+      width: 100%; padding: 7px 10px; border: 1px solid var(--ul-border); border-radius: 10px;
+      background: var(--ul-field); color: var(--ul-fg);
+      font: inherit; font-size: 12.5px; outline: none;
+    }
+    .dshell-input:focus, .dshell-textarea:focus { border-color: var(--ul-accent); }
+
+    .ul-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .ul-headMain { min-width: 0; }
+    .ul-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ul-tools .dshell-btn { padding: 5px 12px; font-size: 12px; }
+    .ul-badgeExt {
+      padding: 5px 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 600;
+      background: var(--ul-warn); color: var(--ul-warn-fg); border: 1px solid transparent;
+    }
+    .ul-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ul-search { flex: 1; min-width: 180px; }
+    .ul-sort { width: 130px; flex: none; }
+    .ul-theme { width: 132px; flex: none; }
+    .ul-tagbar { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ul-colorbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .ul-colorLabel { font-size: 11px; color: var(--ul-fg-3); margin-right: 2px; }
+    .ul-chip {
+      padding: 3px 10px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 11.5px;
+      border: 1px solid var(--ul-border); background: var(--ul-fill); color: var(--ul-fg-2);
+    }
+    .ul-chip:hover { border-color: var(--ul-accent); color: var(--ul-fg); }
+    .ul-chip-on { border-color: var(--ul-accent); color: var(--ul-accent); font-weight: 600; }
+    .ul-chipColor { display: inline-flex; align-items: center; gap: 5px; }
+    .ul-chipDot {
+      flex: none; width: 9px; height: 9px; border-radius: 50%;
+      background: var(--ul-c-solid); box-shadow: 0 0 5px var(--ul-c-solid);
+    }
+    .ul-chipColor.ul-chip-on {
+      border-color: var(--ul-c-edge); background: var(--ul-c-wash); color: var(--ul-c);
+    }
+
+    .ul-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+
+    /* —— 淡淡的玻璃卡片 —— */
+    .ul-card {
+      position: relative; display: flex; flex-direction: column; gap: 7px; padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--ul-c-edge);
+      background-color: var(--ul-bg);
+      background-image: linear-gradient(148deg, var(--ul-c-wash) 0%, rgba(255, 255, 255, 0) 58%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      backdrop-filter: blur(14px) saturate(160%);
+      box-shadow:
+        0 1px 2px rgba(31, 35, 40, .04),
+        0 10px 26px -16px var(--ul-c-shadow),
+        inset 0 1px 0 var(--ul-hairline);
+      transition: box-shadow .18s, border-color .18s, transform .18s;
+    }
+    :root[data-ul-theme="dark"] .ul-card { background-image: linear-gradient(148deg, var(--ul-c-wash) 0%, rgba(255, 255, 255, 0) 58%); }
+    .ul-card:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 1px 2px rgba(31, 35, 40, .05),
+        0 16px 34px -16px var(--ul-c-shadow),
+        inset 0 1px 0 var(--ul-hairline);
+    }
+
+    .ul-cardTop { display: flex; align-items: center; gap: 7px; }
+    .ul-dot {
+      flex: none; width: 9px; height: 9px; border-radius: 50%;
+      background: var(--ul-c-solid);
+      box-shadow: 0 0 7px var(--ul-c-solid);
+    }
+    .ul-cardTitle {
+      flex: 1; min-width: 0;
+      font-size: 13px; font-weight: 600; color: var(--ul-fg); text-decoration: none;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .ul-cardTitle:hover { color: var(--ul-c); }
+    .ul-host { flex: none; font-size: 10.5px; color: var(--ul-fg-3); }
+    .ul-url {
+      font-size: 11px; color: var(--ul-fg-3);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .ul-note { font-size: 11.5px; color: var(--ul-fg-2); line-height: 1.5; }
+    .ul-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ul-tag {
+      font-size: 10.5px; padding: 1px 7px; border-radius: 999px; cursor: pointer;
+      background: var(--ul-c-wash); color: var(--ul-fg-2); border: 1px solid var(--ul-c-edge);
+    }
+    .ul-tag:hover { color: var(--ul-fg); }
+    .ul-tag-on { color: var(--ul-c); font-weight: 600; }
+    .ul-actions { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 2px; }
+    .ul-btn {
+      padding: 3px 10px; border-radius: 8px; cursor: pointer; font: inherit; font-size: 11.5px;
+      border: 1px solid var(--ul-border); background: var(--ul-field); color: var(--ul-fg-2);
+    }
+    .ul-btn:hover { color: var(--ul-fg); border-color: var(--ul-border-2); }
+    .ul-btnGo { background: transparent; font-weight: 600; border-color: var(--ul-c-edge); color: var(--ul-c); }
+    .ul-btnGo:hover { background: var(--ul-c-wash); color: var(--ul-c); }
+    .ul-btnCopy { background: var(--ul-c-solid); color: var(--ul-c-on); border-color: transparent; font-weight: 600; }
+    .ul-btnCopy:hover { color: var(--ul-c-on); filter: brightness(1.08); }
+    .ul-btnGhost { background: transparent; }
+    .ul-btnDanger { background: transparent; border-color: var(--ul-danger); color: var(--ul-danger); }
+    .ul-opens { margin-left: auto; font-size: 10.5px; color: var(--ul-fg-3); }
+
+    .ul-empty {
+      grid-column: 1 / -1; padding: 22px; text-align: center;
+      border: 1px dashed var(--ul-border); border-radius: 16px; color: var(--ul-fg-2);
+    }
+    .ul-emptySub { font-size: 11.5px; color: var(--ul-fg-3); margin-top: 6px; }
+    .ul-path {
+      display: inline-block; margin-top: 8px; padding: 4px 9px; border-radius: 7px; cursor: text;
+      font-family: ui-monospace, Consolas, monospace; font-size: 11px;
+      background: var(--ul-fill-2); color: var(--ul-fg);
+    }
+    .ul-foot { margin-top: 4px; }
+    .ul-foot code { font-size: 10.5px; }
+    .ul-dlgWrap {
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+      background: var(--ul-overlay); z-index: 50; padding: 20px;
+    }
+    .ul-dlgWrap.show { display: flex; }
+    .ul-dlg {
+      width: min(480px, 100%); padding: 16px 18px; border-radius: 18px;
+      border: 1px solid var(--ul-border); background: var(--ul-bg); box-shadow: var(--ul-shadow);
+      display: flex; flex-direction: column; gap: 9px; max-height: 90vh; overflow: auto;
+    }
+    .ul-dlgTitle { margin: 0; font-size: 14px; }
+    .ul-field { display: flex; flex-direction: column; gap: 4px; }
+    .ul-field > span { font-size: 11.5px; color: var(--ul-fg-2); }
+
+    /* 颜色选择 */
+    .ul-swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+    .ul-swatch {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px;
+      border: 1px solid var(--ul-border); background: var(--ul-field); color: var(--ul-fg-2);
+      font: inherit; font-size: 11.5px; cursor: pointer;
+    }
+    .ul-swatch:hover { color: var(--ul-fg); border-color: var(--ul-border-2); }
+    .ul-swatch-on {
+      border-color: var(--ul-c-edge); background: var(--ul-c-wash);
+      color: var(--ul-c); font-weight: 600;
+    }
+    .ul-swatchDot {
+      flex: none; width: 10px; height: 10px; border-radius: 50%;
+      background: var(--ul-c-solid); box-shadow: 0 0 6px var(--ul-c-solid);
+    }
+
+    .ul-dlgErr { margin: 0; min-height: 16px; font-size: 11.5px; color: var(--ul-danger); }
+    .ul-dlgBtns { display: flex; justify-content: flex-end; gap: 8px; }
+    .ul-toast {
+      position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 12px);
+      padding: 7px 16px; border-radius: 999px; font-size: 12px; pointer-events: none;
+      background: var(--ul-toast-bg); color: var(--ul-fg);
+      border: 1px solid var(--ul-border); box-shadow: var(--ul-shadow);
+      opacity: 0; transition: opacity .16s, transform .16s; z-index: 60;
+    }
+    .ul-toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .ul-toast-ok { border-color: var(--ul-ok); }
+    .ul-toast-bad { border-color: var(--ul-danger); }
+  </style>
+</head>
+<body>
+  <div class="dshell">
+    <header class="ul-head">
+      <div class="ul-headMain">
+        <h1 class="dshell-title">网址库</h1>
+        <p class="dshell-sub" id="stat"></p>
+      </div>
+      <div class="ul-tools">
+        <button type="button" id="btnAdd" class="dshell-btn">＋ 添加网址</button>
+        <button type="button" id="btnStandalone" class="dshell-btn dshell-btnGhost" title="把网址库本身拎到一个独立浏览器窗口/标签打开">⧉ 在独立窗口打开</button>
+        <button type="button" id="extBadge" class="ul-badgeExt" style="display:none">外部已更新，点击载入</button>
+        <button type="button" id="btnReload" class="dshell-btn dshell-btnGhost">刷新</button>
+        <button type="button" id="btnExport" class="dshell-btn dshell-btnGhost">导出 JSON</button>
+        <button type="button" id="btnCard" class="dshell-btn dshell-btnGhost" title="在工作台侧边栏生成一张「网址库」项目卡">加入工作台项目卡</button>
+      </div>
+    </header>
+
+    <div class="ul-bar">
+      <input id="q" class="dshell-input ul-search" placeholder="搜索标题 / 网址 / 备注 / 标签" />
+      <select id="sort" class="dshell-input ul-sort" title="排序方式">
+        <option value="recent">最近使用</option>
+        <option value="added">最近添加</option>
+        <option value="opens">打开次数</option>
+        <option value="name">按名称</option>
+      </select>
+      <select id="theme" class="dshell-input ul-theme" title="页面主题">
+        <option value="light">☀ 浅色</option>
+        <option value="dark">🌙 深色</option>
+        <option value="auto">⧉ 跟随工作台</option>
+      </select>
+    </div>
+
+    <div id="tagbar" class="ul-tagbar"></div>
+    <div id="colorbar" class="ul-colorbar"></div>
+    <div id="grid" class="ul-grid"></div>
+
+    <p class="dshell-muted ul-foot">
+      <span id="modeHint"></span> —— 页面与 DSH/agent 共写同一份文件，外部改动 5 秒内自动载入。
+    </p>
+  </div>
+
+  <div id="dlg" class="ul-dlgWrap">
+    <div class="ul-dlg">
+      <h2 class="ul-dlgTitle" id="dlgTitle">添加网址</h2>
+      <label class="ul-field"><span>链接</span><input id="fUrl" class="dshell-input" placeholder="https://" /></label>
+      <label class="ul-field"><span>名称</span><input id="fTitle" class="dshell-input" placeholder="留空则用域名" /></label>
+      <label class="ul-field"><span>标签</span><input id="fTags" class="dshell-input" list="tagList" placeholder="逗号分隔，例如：AI工具, 参考" /></label>
+      <datalist id="tagList"></datalist>
+      <label class="ul-field"><span>备注</span><textarea id="fNote" class="dshell-textarea" rows="3" placeholder="留着它是干什么用的"></textarea></label>
+      <div class="ul-field">
+        <span>卡片颜色</span>
+        <div id="fColor" class="ul-swatches"></div>
+      </div>
+      <p class="ul-dlgErr" id="dlgErr"></p>
+      <div class="ul-dlgBtns">
+        <button type="button" id="dlgCancel" class="dshell-btn dshell-btnGhost">取消</button>
+        <button type="button" id="dlgOk" class="dshell-btn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="ul-toast"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
