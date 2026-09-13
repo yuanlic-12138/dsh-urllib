@@ -454,6 +454,211 @@
     toast('已导出 library.json', 'ok')
   }
 
+  // ---------- 导入 ----------
+  // 比对用「归一化 URL」：只去掉首尾空白、统一小写、去掉结尾的斜杠。
+  // 同域名不同路径必须算成不同条目——x6d.com/ 和 x6d.com/i-wz-29961.html
+  // 指向的是不同内容，导入时不能互相吞掉。
+  var imp = { rows: [], picked: {}, mode: 'skip' }
+
+  function normUrl(u) {
+    return String(u === null || u === undefined ? '' : u).trim().toLowerCase().replace(/\/+$/, '')
+  }
+
+  function parseImportText(text) {
+    var raw = String(text === null || text === undefined ? '' : text).replace(/^\uFEFF/, '').trim()
+    if (!raw) throw new Error('内容是空的')
+    var data
+    try { data = JSON.parse(raw) } catch (e) { throw new Error('不是合法的 JSON：' + e.message) }
+    var arr
+    if (Array.isArray(data)) arr = data
+    else if (data && typeof data === 'object' && Array.isArray(data.items)) arr = data.items
+    else if (data && typeof data === 'object' && typeof data.url === 'string') arr = [data]
+    else throw new Error('认不出这个 JSON：既不是 {items:[…]}，也不是数组，也不是单条网址')
+    if (!arr.length) throw new Error('里面一条网址都没有')
+    var rows = []
+    arr.forEach(function (x, i) {
+      var row = { key: i, src: x, ok: false, why: '', item: null, dup: false }
+      if (!x || typeof x !== 'object' || Array.isArray(x)) { row.why = '不是一条网址记录'; rows.push(row); return }
+      var url = typeof x.url === 'string' ? x.url.trim() : ''
+      if (!url) { row.why = '缺少 url'; rows.push(row); return }
+      if (!/^https?:\/\/\S+$/i.test(url)) { row.why = '不是 http/https 链接'; rows.push(row); return }
+      var tags = []
+      if (Array.isArray(x.tags)) {
+        x.tags.forEach(function (t) {
+          if (typeof t === 'string' && t.trim() && tags.indexOf(t.trim()) < 0) tags.push(t.trim())
+        })
+      }
+      row.ok = true
+      row.item = {
+        url: url,
+        title: (typeof x.title === 'string' && x.title.trim()) ? x.title.trim() : (hostOf(url) || url),
+        note: typeof x.note === 'string' ? x.note : '',
+        tags: tags,
+        color: CARD_COLORS.indexOf(x.color) >= 0 ? x.color : ''
+      }
+      rows.push(row)
+    })
+    return rows
+  }
+
+  function openImport() {
+    imp = { rows: [], picked: {}, mode: 'skip' }
+    $('impText').value = ''
+    $('impFileName').textContent = '未选择文件'
+    $('impSummary').textContent = ''
+    $('impErr').textContent = ''
+    $('impTools').style.display = 'none'
+    $('impList').style.display = 'none'
+    clear($('impList'))
+    $('impMode').value = 'skip'
+    $('impGo').textContent = '导入选中的 0 条'
+    $('impGo').disabled = true
+    $('imp').classList.add('show')
+  }
+
+  function closeImport() { $('imp').classList.remove('show') }
+
+  function analyzeImport(text) {
+    $('impErr').textContent = ''
+    $('impSummary').textContent = ''
+    var rows
+    try {
+      rows = parseImportText(text)
+    } catch (e) {
+      imp.rows = []; imp.picked = {}
+      $('impTools').style.display = 'none'
+      $('impList').style.display = 'none'
+      clear($('impList'))
+      $('impGo').textContent = '导入选中的 0 条'
+      $('impGo').disabled = true
+      $('impErr').textContent = e.message
+      return
+    }
+    var have = {}
+    state.doc.items.forEach(function (it) { have[normUrl(it.url)] = true })
+    imp.rows = rows
+    imp.picked = {}
+    var nNew = 0, nDup = 0, nBad = 0
+    rows.forEach(function (r) {
+      if (!r.ok) { nBad++; return }
+      r.dup = !!have[normUrl(r.item.url)]
+      if (r.dup) nDup++
+      else { nNew++; imp.picked[r.key] = true }
+    })
+    $('impSummary').textContent = '解析到 ' + rows.length + ' 条：新增 ' + nNew +
+      ' · 已存在 ' + nDup + (nBad ? ' · 不合格 ' + nBad : '')
+    $('impTools').style.display = ''
+    $('impList').style.display = ''
+    renderImportList()
+  }
+
+  function renderImportList() {
+    var box = $('impList')
+    clear(box)
+    imp.rows.forEach(function (r) {
+      var row = el('div', { class: 'ul-impRow' + (r.ok ? '' : ' ul-impRowOff') })
+      if (r.ok) {
+        var cb = el('input', { type: 'checkbox' })
+        cb.checked = !!imp.picked[r.key]
+        cb.addEventListener('change', function () {
+          if (cb.checked) imp.picked[r.key] = true
+          else delete imp.picked[r.key]
+          updateImportCount()
+        })
+        row.appendChild(cb)
+        row.appendChild(el('span', { class: 'ul-impTitle', title: r.item.title, text: r.item.title }))
+        row.appendChild(el('span', { class: 'ul-impUrl', title: r.item.url, text: r.item.url }))
+        row.appendChild(el('span', { class: 'ul-impTags', text: (r.item.tags || []).join(' ') }))
+        row.appendChild(el('span', {
+          class: 'ul-impBadge ' + (r.dup ? 'ul-impBadgeDup' : 'ul-impBadgeNew'),
+          text: r.dup ? '已存在' : '新增'
+        }))
+      } else {
+        row.appendChild(el('span', { class: 'ul-impTitle', text: (r.src && typeof r.src.url === 'string') ? r.src.url : '(无法识别)' }))
+        row.appendChild(el('span', { class: 'ul-impBadge ul-impBadgeBad', text: r.why }))
+      }
+      box.appendChild(row)
+    })
+    updateImportCount()
+  }
+
+  function updateImportCount() {
+    var n = imp.rows.filter(function (r) { return r.ok && imp.picked[r.key] }).length
+    $('impGo').textContent = '导入选中的 ' + n + ' 条'
+    $('impGo').disabled = n === 0
+  }
+
+  function pickImport(mode) {
+    imp.picked = {}
+    imp.rows.forEach(function (r) {
+      if (!r.ok) return
+      if (mode === 'all' || (mode === 'new' && !r.dup)) imp.picked[r.key] = true
+    })
+    renderImportList()
+  }
+
+  function doImport() {
+    var picked = imp.rows.filter(function (r) { return r.ok && imp.picked[r.key] })
+    if (!picked.length) { toast('没有选中任何条目', 'bad'); return }
+    var mode = imp.mode
+    var stats = { added: 0, updated: 0 }
+    $('impErr').textContent = ''
+    mutate(function (doc) {
+      var byUrl = {}
+      doc.items.forEach(function (it) { byUrl[normUrl(it.url)] = it })
+      picked.forEach(function (r) {
+        var key = normUrl(r.item.url)
+        var hit = byUrl[key]
+        if (hit) {
+          if (mode === 'update') {
+            hit.title = r.item.title
+            hit.note = r.item.note
+            hit.tags = r.item.tags
+            if (r.item.color) hit.color = r.item.color
+            stats.updated++
+          }
+          return
+        }
+        var it = {
+          id: newId(), url: r.item.url, title: r.item.title, note: r.item.note,
+          tags: r.item.tags, opens: 0,
+          addedAt: new Date().toISOString(), lastOpenedAt: ''
+        }
+        if (r.item.color) it.color = r.item.color
+        doc.items.push(it)
+        byUrl[key] = it
+        stats.added++
+      })
+    }).then(function () {
+      closeImport()
+      toast('导入完成：新增 ' + stats.added + ' 条' +
+        (stats.updated ? '，更新 ' + stats.updated + ' 条' : ''), 'ok')
+    }).catch(function (e) { $('impErr').textContent = '写入失败：' + e.message })
+  }
+
+  function bindImport() {
+    $('btnImport').addEventListener('click', openImport)
+    $('impCancel').addEventListener('click', closeImport)
+    $('impPick').addEventListener('click', function () { $('fileImport').click() })
+    $('fileImport').addEventListener('change', function (e) {
+      var f = e.target.files && e.target.files[0]
+      if (!f) return
+      $('impFileName').textContent = f.name + '（' + Math.max(1, Math.round(f.size / 1024)) + ' KB）'
+      var fr = new FileReader()
+      fr.onload = function () { analyzeImport(String(fr.result || '')) }
+      fr.onerror = function () { $('impErr').textContent = '文件读不出来' }
+      fr.readAsText(f, 'utf-8')
+      e.target.value = ''
+    })
+    $('impParse').addEventListener('click', function () { analyzeImport($('impText').value) })
+    $('impAll').addEventListener('click', function () { pickImport('all') })
+    $('impNone').addEventListener('click', function () { pickImport('none') })
+    $('impNew').addEventListener('click', function () { pickImport('new') })
+    $('impMode').addEventListener('change', function (e) { imp.mode = e.target.value })
+    $('impGo').addEventListener('click', doImport)
+    $('imp').addEventListener('keydown', function (e) { if (e.key === 'Escape') closeImport() })
+  }
+
   // ---------- 在工作台侧边栏种一张项目卡（只有 dsh 宿主下可用）----------
   function addWorktableCard() {
     if (BACKEND.mode !== 'dsh') { toast('独立模式下无法写入工作台数据，请在工作台内打开本页再点', 'bad'); return }
@@ -488,6 +693,7 @@
       reload().then(function () { toast('已从磁盘重新载入', 'ok') })
     })
     $('btnExport').addEventListener('click', exportJson)
+    bindImport()
     $('btnCard').addEventListener('click', addWorktableCard)
     $('dlgOk').addEventListener('click', submitEditor)
     $('dlgCancel').addEventListener('click', closeEditor)
@@ -506,7 +712,7 @@
     if (document.hidden) return
     fetchRaw().then(function (raw) {
       if (raw === null || raw === state.raw) return
-      if ($('dlg').classList.contains('show')) { state.external = true; render(); return }
+      if ($('dlg').classList.contains('show') || $('imp').classList.contains('show')) { state.external = true; render(); return }
       state.external = false
       state.raw = raw
       try { state.doc = parseDoc(raw) } catch (e) { return }

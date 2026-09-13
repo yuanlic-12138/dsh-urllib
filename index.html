@@ -285,6 +285,40 @@
     .ul-toast.show { opacity: 1; transform: translate(-50%, 0); }
     .ul-toast-ok { border-color: var(--ul-ok); }
     .ul-toast-bad { border-color: var(--ul-danger); }
+
+    /* 导入 JSON */
+    .ul-dlgWide { width: min(780px, 100%); }
+    .ul-impBtns { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .ul-impTools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ul-impMode {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11.5px; color: var(--ul-fg-2);
+    }
+    .ul-impSelect { width: auto; padding: 3px 8px; font-size: 11.5px; }
+    .ul-impList {
+      max-height: 46vh; overflow: auto; display: flex; flex-direction: column; gap: 3px;
+      border: 1px solid var(--ul-border); border-radius: 10px; padding: 6px;
+    }
+    .ul-impRow { display: flex; align-items: center; gap: 8px; padding: 5px 7px; border-radius: 8px; font-size: 12px; }
+    .ul-impRow:hover { background: var(--ul-fill); }
+    .ul-impRow input { flex: none; margin: 0; }
+    .ul-impTitle { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ul-impUrl {
+      flex: none; max-width: 34%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      color: var(--ul-fg-3); font-size: 11px;
+    }
+    .ul-impTags {
+      flex: none; max-width: 20%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      color: var(--ul-fg-3); font-size: 10.5px;
+    }
+    .ul-impBadge {
+      flex: none; font-size: 10.5px; padding: 1px 7px; border-radius: 999px;
+      border: 1px solid var(--ul-border); color: var(--ul-fg-3);
+    }
+    .ul-impBadgeNew { border-color: rgba(31, 136, 61, .5); color: #1f883d; }
+    .ul-impBadgeDup { border-color: var(--ul-border-2); color: var(--ul-fg-2); }
+    .ul-impBadgeBad { border-color: rgba(207, 34, 46, .5); color: var(--ul-danger); }
+    .ul-impRowOff { opacity: .45; }
   </style>
 </head>
 <body>
@@ -300,8 +334,10 @@
         <button type="button" id="extBadge" class="ul-badgeExt" style="display:none">外部已更新，点击载入</button>
         <button type="button" id="btnReload" class="dshell-btn dshell-btnGhost">刷新</button>
         <button type="button" id="btnExport" class="dshell-btn dshell-btnGhost">导出 JSON</button>
+        <button type="button" id="btnImport" class="dshell-btn dshell-btnGhost" title="从别人分享的 library.json 里挑选条目加进来">导入 JSON</button>
         <button type="button" id="btnCard" class="dshell-btn dshell-btnGhost" title="在工作台侧边栏生成一张「网址库」项目卡">加入工作台项目卡</button>
       </div>
+      <input type="file" id="fileImport" accept=".json,application/json" style="display:none" />
     </header>
 
     <div class="ul-bar">
@@ -344,6 +380,52 @@
       <div class="ul-dlgBtns">
         <button type="button" id="dlgCancel" class="dshell-btn dshell-btnGhost">取消</button>
         <button type="button" id="dlgOk" class="dshell-btn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="imp" class="ul-dlgWrap">
+    <div class="ul-dlg ul-dlgWide">
+      <h2 class="ul-dlgTitle">导入网址</h2>
+
+      <div class="ul-field">
+        <span>方式一：选一个 library.json（本地读取，不会上传到任何地方）</span>
+        <div class="ul-impBtns">
+          <button type="button" id="impPick" class="dshell-btn dshell-btnGhost">选择文件…</button>
+          <span class="dshell-muted" id="impFileName">未选择文件</span>
+        </div>
+      </div>
+
+      <div class="ul-field">
+        <span>方式二：把 JSON 文本整段粘进来</span>
+        <textarea id="impText" class="dshell-textarea" rows="4" placeholder="把别人发你的 library.json 内容粘到这里"></textarea>
+      </div>
+
+      <div class="ul-impBtns">
+        <button type="button" id="impParse" class="dshell-btn">解析并预览</button>
+        <span class="dshell-muted" id="impSummary"></span>
+      </div>
+
+      <p class="ul-dlgErr" id="impErr"></p>
+
+      <div id="impTools" class="ul-impTools" style="display:none">
+        <button type="button" class="ul-chip" id="impAll">全选</button>
+        <button type="button" class="ul-chip" id="impNone">全不选</button>
+        <button type="button" class="ul-chip" id="impNew">只选新增</button>
+        <span class="ul-impMode">
+          已存在的：
+          <select id="impMode" class="dshell-input ul-impSelect">
+            <option value="skip">跳过（默认）</option>
+            <option value="update">用导入的覆盖</option>
+          </select>
+        </span>
+      </div>
+
+      <div id="impList" class="ul-impList" style="display:none"></div>
+
+      <div class="ul-dlgBtns">
+        <button type="button" id="impCancel" class="dshell-btn dshell-btnGhost">取消</button>
+        <button type="button" id="impGo" class="dshell-btn">导入选中的 0 条</button>
       </div>
     </div>
   </div>
